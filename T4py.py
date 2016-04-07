@@ -6,12 +6,11 @@ import os
 class T4py:
     libt4 = None
     dll_path = ''
-    account = ''
+    id = ''
     passwd = ''
     ca_path = ''
-    ca_passwd = ''
+    # ca_passwd = ''
     future_id = ''
-
     stock_branch, stock_account = '', ''
     fo_branch, fo_account = '', ''
 
@@ -33,8 +32,7 @@ class T4py:
             self.future_id = ret['future_id']
             self.dll_path = ret['dll_path']
             self.ca_path = ret['ca_path']
-
-            if not os.path.isfile(self.dll_path) or not os.path.isfile(self.ca_path):
+            if not os.path.isfile(self.dll_path):
                 print "Reading config.json fails."
                 raise IOError()
 
@@ -42,12 +40,11 @@ class T4py:
             print "Unexpected error:", sys.exc_info()[0]
             raise
 
-
     def _read_account_json(self, json_file):
         try:
             with open(json_file, 'r') as infile:
                 ret = json.load(infile)
-            self.account = ret['id']
+            self.id = ret['id']
             self.passwd = ret['password']
             self.ca_passwd = ret['ca_password']
 
@@ -59,7 +56,8 @@ class T4py:
         init_t4 = self.libt4.init_t4
         init_t4.argtypes = [ctypes.c_char_p] * 3
         init_t4.restype = ctypes.c_char_p
-        ret = init_t4(self.account, self.passwd, '').decode('big5')
+        ret = init_t4(self.id, self.passwd, '').decode('big5')
+        self.fo_branch, self.fo_account = self.get_branch_account('fo')
 
         if self.to_utf8:
             ret = ret.encode('utf8')
@@ -127,12 +125,11 @@ class T4py:
         add_acc_ca.restype = ctypes.c_char_p
         add_acc_ca.argtypes = [ctypes.c_char_p] * 5
 
-        branch, account = self.get_branch_account(type)
-        add_acc_ca_branch = ctypes.c_char_p(branch)
-        add_acc_ca_account = ctypes.c_char_p(account)
-        add_acc_ca_id = ctypes.c_char_p(self.account)
+        add_acc_ca_branch = ctypes.c_char_p(self.fo_branch)
+        add_acc_ca_account = ctypes.c_char_p(self.fo_account)
+        add_acc_ca_id = ctypes.c_char_p(self.id)
         add_acc_ca_path = ctypes.c_char_p(self.ca_path)
-        add_acc_ca_password = ctypes.c_char_p(self.ca_passwd)
+        add_acc_ca_password = ctypes.c_char_p(self.id)
         ret = add_acc_ca(add_acc_ca_branch, add_acc_ca_account, add_acc_ca_id, add_acc_ca_path, add_acc_ca_password).decode('big5')
         if self.to_utf8:
             ret = ret.encode('utf8')
@@ -144,13 +141,12 @@ class T4py:
         verify_ca_pass.argtypes = [ctypes.c_char_p] * 2
 
         branch, account = self.get_branch_account(type)
-        add_acc_ca_branch = ctypes.c_char_p(branch)
-        add_acc_ca_account = ctypes.c_char_p(account)
+        add_acc_ca_branch = ctypes.c_char_p(self.fo_branch)
+        add_acc_ca_account = ctypes.c_char_p(self.fo_account)
         ret = verify_ca_pass(add_acc_ca_branch, add_acc_ca_account).decode('big5')
         if self.to_utf8:
             ret = ret.encode('utf8')
         return ret
-
 
     def stock_balance_sum(self):
         stock_balance_sum = self.libt4.stock_balance_sum
@@ -192,8 +188,8 @@ class T4py:
         future_order.argtypes = [ctypes.c_char_p] * 9
 
         order_buy_or_sell = ctypes.c_char_p(b_or_s.upper())
-        order_branch = ctypes.c_char_p(branch)
-        order_account = ctypes.c_char_p(account)
+        order_branch = ctypes.c_char_p(self.fo_branch)
+        order_account = ctypes.c_char_p(self.fo_id)
         order_future_id = ctypes.c_char_p(future_id.upper())
         order_price = ctypes.c_char_p("0"*(6-len(price)) + price) # 008650, two 0s for padding
         order_amount = ctypes.c_char_p("0"*(3-len(amount)) + amount) # 001, two 0s for padding
@@ -233,8 +229,8 @@ class T4py:
         fo_unsettled_qry_timeout = ctypes.c_char_p('1')
 
         branch, account = self.get_branch_account('fo')
-        fo_unsettled_qry_branch = ctypes.c_char_p(branch)
-        fo_unsettled_qry_account = ctypes.c_char_p(account)
+        fo_unsettled_qry_branch = ctypes.c_char_p(self.fo_branch)
+        fo_unsettled_qry_account = ctypes.c_char_p(self.fo_account)
 
         ret = fo_unsettled_qry(
                 fo_unsettled_qry_flag, fo_unsettled_qry_leng, fo_unsettled_qry_next,
@@ -268,4 +264,6 @@ if __name__ == '__main__':
         t4 = T4py(sys.argv[1], sys.argv[2])
         t4.set_utf8_enabled(True)
         t4.init_t4()
+        print t4.add_acc_ca()
+        print t4.verify_ca_pass()
         print t4.fo_unsettled_qry()
