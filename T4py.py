@@ -56,7 +56,8 @@ class T4py:
         init_t4.argtypes = [ctypes.c_char_p] * 3
         init_t4.restype = ctypes.c_char_p
         ret = init_t4(self.id, self.passwd, '').decode('big5')
-        self.fo_branch, self.fo_account = self.get_branch_account('fo')
+        self.fo_branch, self.fo_account = self._get_branch_account('fo')
+        self.stock_branch, self.stock_account = self._get_branch_account('stock')
 
         if self.to_utf8:
             ret = ret.encode('utf8')
@@ -90,7 +91,7 @@ class T4py:
         ret = ret.decode('big5').encode('utf8')
         return ret
 
-    def get_branch_account(self, type='fo'):
+    def _get_branch_account(self, type='fo'):
         if type == 'fo':
             if self.fo_branch != '' and self.fo_account != '':
                 return self.fo_branch, self.fo_account
@@ -139,7 +140,6 @@ class T4py:
         verify_ca_pass.restype = ctypes.c_char_p
         verify_ca_pass.argtypes = [ctypes.c_char_p] * 2
 
-        branch, account = self.get_branch_account(type)
         add_acc_ca_branch = ctypes.c_char_p(self.fo_branch)
         add_acc_ca_account = ctypes.c_char_p(self.fo_account)
         ret = verify_ca_pass(add_acc_ca_branch, add_acc_ca_account).decode('big5')
@@ -155,11 +155,10 @@ class T4py:
         stock_balance_sum_type = ctypes.c_char_p('A')
         stock_balance_sum_action = ctypes.c_char_p('0')
 
-        branch, account = self.get_branch_account('stock')
-        stock_balance_sum_branch = ctypes.c_char_p(branch)
-        stock_balance_sum_account = ctypes.c_char_p(account)
+        stock_balance_sum_branch = ctypes.c_char_p(self.stock_branch)
+        stock_balance_sum_account = ctypes.c_char_p(self.stock_account)
 
-        ret = stock_balance_sum(branch, account, stock_balance_sum_type, stock_balance_sum_action).decode('big5')
+        ret = stock_balance_sum(self.stock_branch, self.stock_account, stock_balance_sum_type, stock_balance_sum_action).decode('big5')
         if self.to_utf8:
             ret = ret.encode('utf8')
         return ret
@@ -227,7 +226,6 @@ class T4py:
         fo_unsettled_qry_type2 = ctypes.c_char_p('0')
         fo_unsettled_qry_timeout = ctypes.c_char_p('1')
 
-        branch, account = self.get_branch_account('fo')
         fo_unsettled_qry_branch = ctypes.c_char_p(self.fo_branch)
         fo_unsettled_qry_account = ctypes.c_char_p(self.fo_account)
 
@@ -266,3 +264,4 @@ if __name__ == '__main__':
         print t4.add_acc_ca()
         print t4.verify_ca_pass()
         print t4.fo_unsettled_qry()
+        print t4.stock_balance_sum()
