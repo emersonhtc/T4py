@@ -10,6 +10,7 @@ class T4py:
     passwd = ''
     ca_path = ''
     ca_passwd = ''
+    future_id = ''
 
     stock_branch, stock_account = '', ''
     fo_branch, fo_account = '', ''
@@ -17,29 +18,39 @@ class T4py:
     #set this to False under Windows cmd
     to_utf8 = False
 
-    def __init__(self, json_file):
+    def __init__(self, account_json_file, config_json_file):
         try:
-            self.read_account_json(json_file)
+            self._read_config_json(config_json_file)
+            self._read_account_json(account_json_file)
             self.libt4 = ctypes.WinDLL(self.dll_path)
         except:
             print "Open T4 DLL error!"
 
-    def read_account_json(self, json_file):
+    def _read_config_json(self, json_file):
+        try:
+            with open(json_file, 'r') as infile:
+                ret = json.load(infile)
+            self.future_id = ret['future_id']
+            self.dll_path = ret['dll_path']
+            self.ca_path = ret['ca_path']
+
+            if not os.path.isfile(self.dll_path) or not os.path.isfile(self.ca_path):
+                raise IOError()
+
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+
+
+    def _read_account_json(self, json_file):
         try:
             with open(json_file, 'r') as infile:
                 ret = json.load(infile)
             self.account = ret['id']
             self.passwd = ret['password']
-            self.dll_path = ret['dll_path']
-            self.ca_path = ret['ca_path']
-            self.ca_passwd = ret['ca_password']
-
-            if not os.path.isfile(self.dll_path) or \
-                not os.path.isfile(self.ca_path):
-                raise IOError()
 
         except:
-            print "Unexpected error:", sys.exc_info()[0]
+            print "Reading account json fails:", sys.exc_info()[0]
             raise
 
     def init_t4(self):
@@ -235,35 +246,25 @@ class T4py:
         return ret
 
 if __name__ == '__main__':
-
-    # for Yoshi's testing
-    t4 = T4py('c:/T4/t4.dll')
-    t4.set_utf8_enabled(True)
-
-    if len(sys.argv) == 1:
-        print 'Usage 1: python T4py.py <<account.json>>'
+    if len(sys.argv) != 2:
+        print 'Usage 1: python T4py.py <<account.json>> <<config.json>>'
         print 'where account.json as follows:'
         print '    {'
         print '         "id": "A123456789",'
         print '         "password": "mypassword"'
         print '    }'
         print
-        print 'Usage 2: python T4py.py <<id>> <<password>>'
+        print 'and config.json as follows:'
+        print '    {'
+        print '         "future_id": "MTXD6",'
+        print '         "dll_path": "c:/T4/t4.dll"'
+        print '         "ca_path": "c:/T4/"'
+        print '    }'
         exit()
-
-    elif len(sys.argv) == 2:
-        # input file
-        infile = sys.argv[1]
-        with open(infile, 'r') as infile:
-            ret = json.load(infile)
-
-        t4.init_t4(ret['id'], ret['password'])
-        print t4.fo_unsettled_qry()
-        print t4.stock_balance_sum()
-
-    elif len(sys.argv) == 3:
+    elif
+        # for Yoshi's testing
+        t4 = T4py(sys.argv[1], sys.argv[2])
+        t4.set_utf8_enabled(True)
         t4.init_t4(sys.argv[1], sys.argv[2])
-        print t4.fo_unsettled_qry()
-
-    else:
-        print "Are you kidding me?"
+        t4.fo_unsettled_qry()
+        
