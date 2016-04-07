@@ -1,0 +1,4 @@
+*.pyc
+*.txt
+*.pfx
+account.json
