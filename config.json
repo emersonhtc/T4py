@@ -1,5 +1,5 @@
 {
     "future_id": "MXFD6",
-    "dll_path": "c:/T4/",
-    "ca_ath": "c:/T4/t4.dll",
+    "dll_path": "c:/T4/t4.dll",
+    "ca_path": "c:/T4/Sinopac.pfx"
 }

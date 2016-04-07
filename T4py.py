@@ -35,6 +35,7 @@ class T4py:
             self.ca_path = ret['ca_path']
 
             if not os.path.isfile(self.dll_path) or not os.path.isfile(self.ca_path):
+                print "Reading config.json fails."
                 raise IOError()
 
         except:
@@ -64,7 +65,7 @@ class T4py:
         return ret
 
     def set_utf8_enabled(self, flag):
-        to_utf8 = flag
+        self.to_utf8 = flag
 
     def show_version(self):
         show_version = self.libt4.show_version
@@ -246,7 +247,7 @@ class T4py:
         return ret
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print 'Usage 1: python T4py.py <<account.json>> <<config.json>>'
         print 'where account.json as follows:'
         print '    {'
@@ -265,5 +266,5 @@ if __name__ == '__main__':
         # for Yoshi's testing
         t4 = T4py(sys.argv[1], sys.argv[2])
         t4.set_utf8_enabled(True)
-        t4.init_t4(sys.argv[1], sys.argv[2])
-        t4.fo_unsettled_qry()
+        t4.init_t4()
+        print t4.fo_unsettled_qry()
