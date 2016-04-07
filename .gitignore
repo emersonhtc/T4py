@@ -2,3 +2,5 @@
 *.txt
 *.pfx
 account.json
+config.json
+

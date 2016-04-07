@@ -51,7 +51,7 @@ class Test_t4py(unittest.TestCase):
         self.assertEqual(ret, 0)
 
 if __name__ == '__main__':
-    t4 = T4py.T4py('.//account.json')
+    t4 = T4py.T4py('.//account.json', './/config.json')
 
     unittest.TestLoader.sortTestMethodsUsing = None
     suite = unittest.TestLoader().loadTestsFromTestCase(Test_t4py)

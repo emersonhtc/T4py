@@ -49,6 +49,7 @@ class T4py:
                 ret = json.load(infile)
             self.account = ret['id']
             self.passwd = ret['password']
+            self.ca_passwd = ret['ca_password']
 
         except:
             print "Reading account json fails:", sys.exc_info()[0]
