@@ -257,14 +257,13 @@ if __name__ == '__main__':
         print 'and config.json as follows:'
         print '    {'
         print '         "future_id": "MTXD6",'
-        print '         "dll_path": "c:/T4/t4.dll"'
+        print '         "dll_path": "c:/T4/t4.dll",'
         print '         "ca_path": "c:/T4/"'
         print '    }'
         exit()
-    elif
+    else:
         # for Yoshi's testing
         t4 = T4py(sys.argv[1], sys.argv[2])
         t4.set_utf8_enabled(True)
         t4.init_t4(sys.argv[1], sys.argv[2])
         t4.fo_unsettled_qry()
-        
