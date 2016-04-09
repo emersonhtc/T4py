@@ -22,8 +22,8 @@ class T4py:
             self._read_config_json(config_json_file)
             self._read_account_json(account_json_file)
             self.libt4 = ctypes.WinDLL(self.dll_path)
-        except:
-            print "Open T4 DLL error!"
+        except:                                    
+            print "Open T4 DLL error:", sys.exc_info()[1]            
 
     def _read_config_json(self, json_file):
         try:
@@ -37,7 +37,7 @@ class T4py:
                 raise IOError()
 
         except:
-            print "Unexpected error:", sys.exc_info()[0]
+            print "Unexpected error:", sys.exc_info()[1]
             raise
 
     def _read_account_json(self, json_file):
@@ -49,7 +49,7 @@ class T4py:
             self.ca_passwd = ret['ca_password']
 
         except:
-            print "Reading account json fails:", sys.exc_info()[0]
+            print "Reading account json fails:", sys.exc_info()[1]
             raise
 
     def init_t4(self):
