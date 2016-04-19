@@ -22,8 +22,8 @@ class T4py:
             self._read_config_json(config_json_file)
             self._read_account_json(account_json_file)
             self.libt4 = ctypes.WinDLL(self.dll_path)
-        except:                                    
-            print "Open T4 DLL error:", sys.exc_info()[1]            
+        except:
+            print "Open T4 DLL error:", sys.exc_info()[1]
 
     def _read_config_json(self, json_file):
         try:
@@ -211,6 +211,22 @@ class T4py:
         if self.to_utf8:
             ret = ret.encode('utf8')
         return ret
+
+    def blocking_query_lot():
+        wait = 5
+        ret = self.fo_unsettled_qry()
+        while 'Error' in ret:
+            time.sleep(wait)
+            ret = self.fo_unsettled_qry()
+            # simple backoff algorithm to lengthen waiting time exponentially
+            wait *= 2
+
+        if ret.find("MTX") == -1:
+            # TODO: What will be returned if the # of lot = 0?
+            return 0
+        else:
+            return ret.split()[11]
+
 
     def fo_unsettled_qry(self):
         fo_unsettled_qry = self.libt4.fo_unsettled_qry
