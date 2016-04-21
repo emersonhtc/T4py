@@ -46,7 +46,7 @@ class T4py:
                 ret = json.load(infile)
             self.id = ret['id']
             self.passwd = ret['password']
-            self.ca_passwd = ret['ca_password']
+            # self.ca_passwd = ret['ca_password']
 
         except:
             print "Reading account json fails:", sys.exc_info()[1]
@@ -276,7 +276,7 @@ if __name__ == '__main__':
     else:
         # for Yoshi's testing
         t4 = T4py(sys.argv[1], sys.argv[2])
-        t4.set_utf8_enabled(True)
+        t4.set_utf8_enabled(False)
         t4.init_t4()
         print t4.add_acc_ca()
         print t4.verify_ca_pass()
