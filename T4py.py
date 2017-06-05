@@ -250,6 +250,7 @@ if __name__ == '__main__':
 		print '	{'
 		print '		 "id": "A123456789",'
 		print '		 "password": "mypassword"'
+		print '		 "ca_password": "myca_password"'
 		print '	}'
 		print
 		print 'and config.json as follows:'
